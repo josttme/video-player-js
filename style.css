@@ -1,0 +1,95 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200;400&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+:root {
+	--primary: #000019;
+	--secondary: #0085ff;
+	--text-color: #e6e4e1;
+}
+body {
+	background-color: var(--primary) !important;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%230085ff' fill-opacity='0.46' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
+	font-family: 'Nunito', sans-serif;
+}
+/*  imput */
+input[type='range'] {
+	margin: 0 0.5rem;
+	-webkit-appearance: none;
+	width: calc(100% - 1rem);
+	background: rgba(255, 255, 255, 0.4);
+	background-image: linear-gradient(var(--secondary), var(--secondary));
+	background-repeat: no-repeat;
+}
+/* Input Thumb */
+input[type='range']::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	height: 15px;
+	width: 15px;
+	border-radius: 50%;
+	background: var(--secondary);
+	opacity: 0;
+}
+input[type='range']:hover::-webkit-slider-thumb {
+	opacity: 1;
+}
+.speed select:active,
+.speed select:focus {
+	outline: none;
+	box-shadow: none;
+	border: none;
+}
+
+.video-fullscreen {
+	width: 100vw;
+	height: 100vh;
+	display: grid;
+	place-content: center;
+}
+.video-fullscreen video {
+	height: 100vh;
+}
+.video-fullscreen .controls-group {
+	width: 95%;
+	margin: 0 auto;
+	bottom: 0;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.play-controls {
+	top: calc(50% - 1.5rem);
+	left: calc(50% - 1.5rem);
+	width: calc(50% - 50%);
+}
+.show-controls {
+	bottom: -0.1px;
+}
+.show-controls::before {
+	content: '';
+	background: --text-color;
+	background: linear-gradient(
+		180deg,
+		rgba(255, 255, 255, 0) 0%,
+		rgba(0, 0, 0, 0.46262254901960786) 100%
+	);
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	height: 130px;
+	width: 100%;
+	pointer-events: none;
+	transition: 200ms ease-in-out;
+}
+.show-controls.hover::before,
+.hover {
+	opacity: 1;
+	z-index: 10;
+}
+
+@media screen and (min-width: 1000px) {
+	.player:hover .show-controls {
+		opacity: 1;
+		z-index: 100;
+	}
+}

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+		<meta name="robots" content="index,follow" />
+		<link
+			rel="icon"
+			type="image/png"
+			href="https://dl.dropboxusercontent.com/s/krhcb2uytgl2fow/JosttMe.png"
+		/>
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.min.css"
+		/>
+		<title>JosttMovie</title>
+	</head>
+	<body class="h-screen w-screen overflow-hidden grid place-content-center text-text-color">
+		<div class="w-full h-auto absolute top-[5%] text-center">
+			<h1 class="tex-center text-3xl font-semibold text-text-color/75">JosttMovi</h1>
+		</div>
+		<section class="player relative -top-1/4 lg:top-0 max-w-5xl">
+			<section class="player-video">
+				<video
+					loop
+					class="rounded-lg"
+					poster="https://dl.dropboxusercontent.com/s/51a0av1lpcjsgy8/poster.jpg"
+				>
+					<source
+						src="https://dl.dropboxusercontent.com/s/syxf9m0bylyyzcn/x-men_1080p_comp.mp4"
+						type="video/mp4"
+					/>
+				</video>
+			</section>
+			<!-- Show Controls  -->
+			<div
+				class="show-controls h-full opacity-0 -z-50 bottom-0 transition duration-200 ease-in-out left-0 w-full absolute"
+			>
+				<!-- Picture in Picture -->
+				<div title="Picture in Picture">
+					<svg
+						width="40px"
+						class="picture-in-picture absolute fill-text-color hover:drop-shadow-3xl hover:fill-secondary lg:cursor-pointer top-0 right-0"
+						version="1.1"
+						viewBox="0 0 36 36"
+					>
+						<path
+							d="M25,17 L17,17 L17,23 L25,23 L25,17 L25,17 Z M29,25 L29,10.98 C29,9.88 28.1,9 27,9 L9,9 C7.9,9 7,9.88 7,10.98 L7,25 C7,26.1 7.9,27 9,27 L27,27 C28.1,27 29,26.1 29,25 L29,25 Z M27,25.02 L9,25.02 L9,10.97 L27,10.97 L27,25.02 L27,25.02 Z"
+						></path>
+					</svg>
+				</div>
+				<!-- Play/Pause -->
+				<div class="play-controls absolute lg:hidden">
+					<i class="fas fa-play text-4xl text-secondary" title="Play" id="play-btn"></i>
+				</div>
+				<!-- Controls Group -->
+				<div
+					class="controls-group grid z-[110] absolute bottom-0 left-0 grid-cols-sm w-full lg:grid-cols-lg items-center justify-items-center lg:opacity-1 lg:z-50 lg:w-full"
+				>
+					<!-- Play/Pause xl -->
+					<div class="hidden lg:inline-block w-full hover:drop-shadow-3xl text-center h-full">
+						<i
+							class="fas fa-play text-xl hover:text-secondary w-2/3 m-auto grid place-content-center h-full lg:cursor-pointer"
+							title="Play"
+							id="play-btn-xl"
+						></i>
+					</div>
+					<!-- Volume -->
+					<div
+						class="volume-range hidden lg:cursor-pointer lg:grid lg:grid-cols-volume lg:items-center lg:justify-center"
+					>
+						<div class="volume-icon text-xl w-full h-full hover:text-secondary hover:drop-shadow-3xl">
+							<i
+								class="fas fa-volume-up lg:col-start-2 h-full w-full p-2 grid place-content-center"
+								title="Mute"
+								id="volume-icon"
+							></i>
+						</div>
+						<input
+							type="range"
+							min="0.00"
+							step="0.01"
+							max="100"
+							value="100"
+							initialValue="0.00"
+							class="volume-bar rounded-xl ml-2 mr-2 h-1 lg:cursor-pointer w-full"
+						/>
+					</div>
+					<!-- Time -->
+					<span class="time-elapsed ml-1 col-start-1 lg:col-start-3 lg:text-lg">00:00</span>
+					<!-- Progress bar -->
+					<div
+						class="progress-range grid items-center col-start-2 lg:col-start-4 col-span-5 w-full h-full"
+					>
+						<input
+							type="range"
+							min="0.000"
+							step="0.001"
+							max="99.999"
+							value="0.000"
+							initialValue="0.000"
+							class="progress-bar bg-0 rounded-xl ml-2 lg:cursor-pointer mr-2 h-1 w-full"
+						/>
+					</div>
+					<!-- Time -->
+					<span class="time-duration m-1 col-start-7 lg:col-start-9 lg:text-lg"></span>
+					<!-- Speed -->
+					<div
+						class="speed col-start-8 lg:col-start-10 hover:drop-shadow-3xl lg:text-lg bg-transparent"
+						title="Playback Rate"
+					>
+						<select
+							name="playbackRate"
+							class="player-speed lg:hover:text-secondary lg:cursor-pointer border-none w-full bg-transparent"
+						>
+							<option class="bg-primary" value="0.5">0.5</option>
+							<option class="bg-primary" value="0.75">0.7</option>
+							<option class="bg-primary" value="1" selected>1x</option>
+							<option class="bg-primary" value="1.5">1.5</option>
+							<option class="bg-primary" value="2">2x</option>
+							<option class="bg-primary" value="2.1">2.1</option>
+						</select>
+					</div>
+					<!-- Fullscreen -->
+					<div
+						class="fullscreen col-start-9 lg:col-start-11 w-full hover:drop-shadow-3xl text-center h-full"
+					>
+						<i
+							title="Fullscreen"
+							class="fas fa-expand lg:text-xl lg:hover:text-secondary w-1/2 grid lg:cursor-pointer place-content-center m-auto h-full"
+						></i>
+					</div>
+				</div>
+			</div>
+		</section>
+		<script type="module" src="/main.js"></script>
+	</body>
+</html>
