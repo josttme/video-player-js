@@ -2,8 +2,9 @@
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="robots" content="index,follow" />
+		<meta name="description" content="JosttMovi video player " />
 		<link
 			rel="icon"
 			type="image/png"
@@ -16,16 +17,17 @@
 		<title>JosttMovie</title>
 	</head>
 	<body class="h-screen w-screen overflow-hidden grid place-content-center text-text-color">
-		<div class="w-full h-auto absolute top-[5%] text-center">
-			<h1 class="tex-center text-3xl font-semibold text-text-color/75">JosttMovi</h1>
-		</div>
+		<img
+			width="155"
+			height="44"
+			decoding="async"
+			class="absolute opacity-70 z-10 left-1/2 top-[5%] drop-shadow-lg -translate-x-1/2"
+			src="/josttme-movi.png"
+			alt="JosttMe Movie Logo"
+		/>
 		<section class="player relative -top-1/4 lg:top-0 max-w-5xl">
 			<section class="player-video">
-				<video
-					loop
-					class="rounded-lg"
-					poster="https://dl.dropboxusercontent.com/s/51a0av1lpcjsgy8/poster.jpg"
-				>
+				<video loop class="rounded-lg" poster="/poster.webp">
 					<source
 						src="https://dl.dropboxusercontent.com/s/syxf9m0bylyyzcn/x-men_1080p_comp.mp4"
 						type="video/mp4"
@@ -93,6 +95,7 @@
 						class="progress-range grid items-center col-start-2 lg:col-start-4 col-span-5 w-full h-full"
 					>
 						<input
+							title="Progress Bar"
 							type="range"
 							min="0.000"
 							step="0.001"
@@ -133,6 +136,6 @@
 				</div>
 			</div>
 		</section>
-		<script type="module" src="/main.js"></script>
+		<script defer type="module" src="/main.js"></script>
 	</body>
 </html>

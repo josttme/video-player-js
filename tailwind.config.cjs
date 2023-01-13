@@ -8,9 +8,6 @@ module.exports = {
 				secondary: '#168fff',
 				'text-color': '#e6e4e1',
 			},
-			fontFamily: {
-				Nunito: ['Nunito', 'sans-serif'],
-			},
 			gridTemplateColumns: {
 				// Simple 16 column grid
 				volume: '20% , auto',
