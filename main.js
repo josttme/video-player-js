@@ -1,65 +1,86 @@
 import './style.css'
-// Select DOM elements
-const playPauseBtn = document.querySelector('.play-pause-btn')
-const theaterBtn = document.querySelector('.theater-btn')
-const fullScreenBtn = document.querySelector('.full-screen-btn')
-const miniPlayerBtn = document.querySelector('.mini-player-btn')
-const muteBtn = document.querySelector('.mute-btn')
-const currentTimeElem = document.querySelector('.current-time')
-const totalTimeElem = document.querySelector('.total-time')
-const speedBtn = document.querySelector('.speed-btn')
-const bufferedBar = document.getElementById('buffered-bar')
-const volumeSlider = document.querySelector('.volume-slider')
-const volumeContainer = document.querySelector('.volume-container')
-const volumeContainerSlider = document.querySelector('.volume-slider-container')
-const rangeValue = document.querySelector('.range-value')
-const videocontainer = document.querySelector('.video-container')
-const timelineContainer = document.querySelector('.timeline-container')
-const video = document.querySelector('video')
-const showControls = document.querySelector('.show-controls')
+// Select DOM elems
+const $ = (selector) => document.querySelector(selector)
+const playPauseBtn = $('.play-pause-btn')
+const theaterBtn = $('.theater-btn')
+const fullScreenBtn = $('.full-screen-btn')
+const miniPlayerBtn = $('.mini-player-btn')
+const muteBtn = $('.mute-btn')
+const currentTimeElem = $('.current-time')
+const totalTimeElem = $('.total-time')
+const speedBtn = $('.speed-btn')
+const bufferedBar = $('#buffered-bar')
+const volumeContainer = $('.volume-container')
+const volumeSliderContainer = $('.volume-slider-container')
+const volumeSlider = $('.volume-slider')
+const rangeValue = $('.range-value')
+const videoContainer = $('.video-container')
+const timelineContainer = $('.timeline-container')
+const video = $('video')
+const showControls = $('.show-controls')
+const downloadBtn = $('.download')
+const attributeTitle = document.querySelectorAll('[title]')
 
-let timeoutControls
+const isMinWidth1200 = window.matchMedia('(min-width: 1200px)')
+
+let timeoutControls, wasPaused
 let isHovering = false
 let isScrubbing = false
-let wasPaused
 
-// ---------- Play and Pause video ---------- //
+/********************************
+ * Play and Pause
+ ********************************/
 const togglePlay = () => (video.paused ? video.play() : video.pause())
 
-const removeClassPaused = () => videocontainer.classList.remove('paused')
-const addClassPaused = () => videocontainer.classList.add('paused')
+const removeClassPaused = () => videoContainer.classList.remove('paused')
+const addClassPaused = () => videoContainer.classList.add('paused')
 
-// ---------- Playback Speed ---------- //
+/********************************
+ * Playback Speed
+ ********************************/
 function changePlaybackSpeed() {
   let newPlaybackRate = video.playbackRate + 0.25
   if (newPlaybackRate > 2) newPlaybackRate = 0.25
   video.playbackRate = newPlaybackRate
   speedBtn.textContent = `${newPlaybackRate}x`
 }
-// ---------- TimeLine ---------- //
-timelineContainer.addEventListener('mousemove', handleTimelineUpdate)
-timelineContainer.addEventListener('mousedown', toggleScrubbing)
 
-document.addEventListener('mouseup', (e) => {
-  if (isScrubbing) toggleScrubbing(e)
-})
-document.addEventListener('mousemove', (e) => {
-  if (isScrubbing) handleTimelineUpdate(e)
-})
+/********************************
+ * TimeLine
+ ********************************/
 
 function toggleScrubbing(e) {
-  const rect = timelineContainer.getBoundingClientRect()
-  const percent = Math.min(Math.max(0, e.x - rect.x), rect.width) / rect.width
+  const percent = calculatePercent(e)
   isScrubbing = (e.buttons & 1) === 1
-  videocontainer.classList.toggle('scrubbing', isScrubbing)
+  videoContainer.classList.toggle('scrubbing', isScrubbing)
+
   if (isScrubbing) {
-    wasPaused = video.paused
-    video.pause()
+    e.preventDefault()
+    pauseVideo()
   } else {
-    video.currentTime = percent * video.duration
-    if (!wasPaused) video.play()
+    setCurrentTime(percent)
+    playVideo()
   }
+
   handleTimelineUpdate(e)
+}
+
+function calculatePercent(e) {
+  const rect = timelineContainer.getBoundingClientRect()
+  return Math.min(Math.max(0, e.x - rect.x), rect.width) / rect.width
+}
+
+function pauseVideo() {
+  wasPaused = video.paused
+  video.pause()
+}
+
+function setCurrentTime(percent) {
+  video.currentTime = percent * video.duration
+}
+
+function playVideo() {
+  if (!wasPaused) video.play()
 }
 function handleTimelineUpdate(e) {
   const rect = timelineContainer.getBoundingClientRect()
@@ -70,7 +91,9 @@ function handleTimelineUpdate(e) {
     timelineContainer.style.setProperty('--progress-position', percent)
   }
 }
-// ---------- Duration ---------- //
+/********************************
+ * Duration
+ ********************************/
 const leadingZeroFormatter = new Intl.NumberFormat(undefined, {
   minimumIntegerDigits: 2
 })
@@ -95,30 +118,31 @@ function formatDuration(time) {
 }
 const skip = (duration) => (video.currentTime += duration)
 
-// ---------- Volume ---------- //
-muteBtn.addEventListener('mouseover', showVolumeContainer)
-muteBtn.addEventListener('mouseleave', hideVolumeContainer)
-volumeContainerSlider.addEventListener('mouseover', showVolumeContainer)
-volumeContainerSlider.addEventListener('mouseleave', hideVolumeContainer)
+/********************************
+ * Volume
+ ********************************/
 
 function showVolumeContainer() {
   isHovering = false
-  volumeContainer.classList.add('hover')
+  volumeContainer.classList.add('volume')
 }
 function hideVolumeContainer() {
   isHovering = true
   clearTimeout(timeoutControls)
   timeoutControls = setTimeout(() => {
-    if (isHovering) {
-      volumeContainer.classList.remove('hover')
-      isHovering = false
-    }
-  }, 500)
+    removeClassVolume()
+  }, 400)
 }
-
+function removeClassVolume() {
+  if (isHovering) {
+    volumeContainer.classList.remove('volume')
+    isHovering = false
+  }
+}
 const toggleMute = () => (video.muted = !video.muted)
 
 muteBtn.addEventListener('click', toggleMute)
+
 volumeSlider.addEventListener('input', (e) => {
   video.volume = e.target.value
   video.muted = e.target.value === 0
@@ -132,88 +156,101 @@ video.addEventListener('volumechange', () => {
   if (video.muted || video.volume === 0) {
     volumeSlider.value = 0
     rangeValue.textContent = 0
-    volumeSlider.style.backgroundSize = `0% 100%`
+    volumeSlider.style.backgroundSize = '0% 100%'
     volumeLevel = 'muted'
   } else if (video.volume >= 0.5) {
     volumeLevel = 'high'
   } else {
     volumeLevel = 'low'
   }
-  videocontainer.dataset.volumeLevel = volumeLevel
-  video.volume
-  video.muted
+  videoContainer.dataset.volumeLevel = volumeLevel
 })
-// ---------- View Modes ---------- //
+/********************************
+ * View Modes
+ ********************************/
 function toggleTheaterMode() {
-  videocontainer.classList.toggle('theater')
+  videoContainer.classList.toggle('theater')
 }
-/* Full Screen */
-/* View in fullscreen */
+// === Full Screen === //
+// --- Open Full Screen ---
 function openFullscreen(elem) {
-  elem.requestFullscreen
-    ? elem.requestFullscreen()
-    : elem.webkitRequestFullscreen
-    ? elem.webkitRequestFullscreen() /* Safari */
-    : elem.msRequestFullscreen
-    ? elem.msRequestFullscreen() /* IE11 */
-    : null
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen()
+  } else if (elem.webkitRequestFullscreen) {
+    elem.webkitRequestFullscreen() // Safari
+  } else if (elem.msRequestFullscreen) {
+    elem.msRequestFullscreen() // IE11
+  }
 }
-/* Close fullscreen */
+// --- Close Full Screen ---
 function closeFullscreen() {
-  document.exitFullscreen
-    ? document.exitFullscreen()
-    : document.webkitExitFullscreen
-    ? document.webkitExitFullscreen() /* Safari */
-    : document.msExitFullscreen
-    ? document.msExitFullscreen() /* IE11 */
-    : null
+  if (document.exitFullscreen) {
+    document.exitFullscreen()
+  } else if (document.webkitExitFullscreen) {
+    document.webkitExitFullscreen() // Safari
+  } else if (document.msExitFullscreen) {
+    document.msExitFullscreen() // IE11
+  }
 }
-// Toggle Fullscreen
+// --- toggle Full Screen ---
 function toggleFullScreenMode() {
   document.fullscreenElement == null
-    ? openFullscreen(videocontainer)
-    : closeFullscreen(videocontainer)
+    ? openFullscreen(videoContainer)
+    : closeFullscreen(videoContainer)
 }
-// fullscreen Roration
+
+// --- Full Screen Rotation ---
 document.addEventListener('fullscreenchange', () => {
-  videocontainer.classList.toggle('full-screen'),
-    document.fullscreenElement && screen.orientation.lock('landscape-primary')
+  videoContainer.classList.toggle('full-screen')
+  if (isRotatableScreen()) {
+    screen.orientation.lock('landscape-primary')
+  }
 })
-// ---------- Picture In Picture ---------- //
-function toggleminiPlayerMode() {
-  videocontainer.classList.contains('mini-player')
+function isRotatableScreen() {
+  return typeof window.orientation !== 'undefined'
+}
+/********************************
+ * Picture In Picture
+ ********************************/
+
+function toggleMiniPlayerMode() {
+  videoContainer.classList.contains('mini-player')
     ? document.exitPictureInPicture()
     : video.requestPictureInPicture()
 }
 video.addEventListener('enterpictureinpicture', () => {
-  videocontainer.classList.add('mini-player')
+  videoContainer.classList.add('mini-player')
 })
 video.addEventListener('leavepictureinpicture', () => {
-  videocontainer.classList.remove('mini-player')
+  videoContainer.classList.remove('mini-player')
 })
-
+/********************************
+ * Show and Hide Controls
+ ********************************/
 function showControlsTouch(e) {
   e.preventDefault()
-  videocontainer.classList.add('controls')
-  clearTimeout(timeoutControls)
-  timeoutControls = setTimeout(() => {
-    videocontainer.matches('.controls') && videocontainer.classList.remove('controls')
-  }, 3000)
+  videoContainer.classList.add('controls')
+  setTimeoutControls()
 }
 function hiddenControlsTouch(e) {
   e.stopPropagation()
   const playPause = e.target.closest('.play-btn')
-  if (!!playPause) {
+  if (playPause) {
     playPause.addEventListener('click', togglePlay)
   } else {
-    videocontainer.classList.remove('controls')
-    clearTimeout(timeoutControls)
-    timeoutControls = setTimeout(() => {
-      videocontainer.matches('.controls') && videocontainer.classList.remove('controls')
-    }, 3000)
+    videoContainer.classList.remove('controls')
+    setTimeoutControls()
   }
 }
-// ---------- buffered  progress ---------- //
+function setTimeoutControls() {
+  clearTimeout(timeoutControls)
+  timeoutControls = setTimeout(() => {
+    videoContainer.matches('.controls') && videoContainer.classList.remove('controls')
+  }, 3000)
+}
+/********************************
+ * Buffered  Progress
+ ********************************/
 function bufferedProgress() {
   const buffered = video.buffered
   const duration = video.duration
@@ -225,88 +262,110 @@ function bufferedProgress() {
 }
 video.addEventListener('progress', bufferedProgress)
 
-// ---------- Title ---------- //
-const elementsWithTooltip = document.querySelectorAll('[title]')
-
-elementsWithTooltip.forEach((element) => {
-  element.addEventListener('mouseover', () => {
-    const tooltip = document.createElement('div')
-    tooltip.classList.add('tooltip')
-    if (document.fullscreenElement == null && element.classList.contains('full-screen-btn')) {
+/********************************
+ * Attribute Title
+ ********************************/
+attributeTitle.forEach((elem) => {
+  elem.addEventListener('mouseover', () => {
+    removeClassVolume()
+    const containerTitle = document.createElement('div')
+    containerTitle.classList.add('container-title')
+    // Full Screen and Exit Full Screen Attribute
+    if (document.fullscreenElement == null && elem.classList.contains('full-screen-btn')) {
       fullScreenBtn.setAttribute('title', 'Full screen(f)')
-      tooltip.style.transform = `translateX(${-110}px)`
-    } else if (element.classList.contains('full-screen-btn')) {
+      containerTitle.style.transform = `translateX(${-110}px)`
+    } else if (elem.classList.contains('full-screen-btn')) {
       fullScreenBtn.setAttribute('title', 'Exit full screen(f)')
-      tooltip.style.transform = `translateX(${-140}px)`
+      containerTitle.style.transform = `translateX(${-140}px)`
     }
-    if (video.paused && element.classList.contains('play-pause-btn')) {
+    // Play and Pause Screen Attribute
+    if (video.paused && elem.classList.contains('play-pause-btn')) {
       playPauseBtn.setAttribute('title', 'Play(k)')
-      tooltip.style.transform = 'translateX(-30px)'
-    } else if (element.classList.contains('play-pause-btn')) {
+      containerTitle.style.transform = 'translateX(-30px)'
+    } else if (elem.classList.contains('play-pause-btn')) {
       playPauseBtn.setAttribute('title', 'Pause(k)')
-      tooltip.style.transform = 'translateX(-30px)'
+      containerTitle.style.transform = 'translateX(-30px)'
     }
-    tooltip.textContent = element.getAttribute('title')
+    containerTitle.textContent = elem.getAttribute('title')
 
-    element.removeAttribute('title')
-    element.appendChild(tooltip)
+    elem.removeAttribute('title')
+    elem.appendChild(containerTitle)
   })
 
-  element.addEventListener('mouseout', () => {
-    const tooltip = element.querySelector('.tooltip')
-    if (tooltip) {
-      element.setAttribute('title', tooltip.textContent)
-      tooltip.remove()
+  elem.addEventListener('mouseout', () => {
+    const containerTitle = elem.querySelector('.container-title')
+    if (containerTitle) {
+      elem.setAttribute('title', containerTitle.textContent)
+      containerTitle.remove()
     }
   })
 })
 
-// ---------- Event Listeners ---------- //
-playPauseBtn.addEventListener('click', togglePlay)
-if (window.matchMedia('(min-width: 1200px)').matches) {
-  video.addEventListener('click', togglePlay)
+/********************************
+ * Keydown
+ ********************************/
+const tagName = document.activeElement.tagName.toLowerCase()
+const keyActions = {
+  ' ': () => {
+    if (tagName !== 'button') togglePlay()
+  },
+  k: togglePlay,
+  f: toggleFullScreenMode,
+  t: toggleTheaterMode,
+  i: toggleMiniPlayerMode,
+  m: toggleMute,
+  arrowleft: () => skip(-5),
+  j: () => skip(-5),
+  arrowright: () => skip(5),
+  l: () => skip(5)
 }
-// ---------- Playback Speed ---------- //
-speedBtn.addEventListener('click', changePlaybackSpeed)
+function handleKeyDown(e) {
+  if (tagName === 'input') return
+  const key = e.key.toLocaleLowerCase()
+  keyActions[key] && keyActions[key]()
+}
+/********************************
+ * Download Video
+ ********************************/
+function downloadVideo() {
+  const link = document.createElement('a')
+  link.download = 'video.mp4'
+  link.href = video.currentSrc
+  link.target = '_blank'
+  link.click()
+}
+downloadBtn.addEventListener('click', () => {
+  downloadVideo()
+})
+
+/********************************
+ * Event Listeners
+ ********************************/
+// --- Play and Pause  ---
+playPauseBtn.addEventListener('click', togglePlay)
 video.addEventListener('play', removeClassPaused)
 video.addEventListener('pause', addClassPaused)
-// View Modes
+isMinWidth1200 && video.addEventListener('click', togglePlay)
+// --- Time Line  ---
+timelineContainer.addEventListener('mousemove', handleTimelineUpdate)
+timelineContainer.addEventListener('mousedown', toggleScrubbing)
+document.addEventListener('mouseup', (e) => isScrubbing && toggleScrubbing(e))
+document.addEventListener('mousemove', (e) => isScrubbing && handleTimelineUpdate(e))
+// --- Volume  ---
+muteBtn.addEventListener('mouseover', showVolumeContainer)
+muteBtn.addEventListener('mouseleave', hideVolumeContainer)
+volumeSliderContainer.addEventListener('mouseover', showVolumeContainer)
+volumeSliderContainer.addEventListener('mouseleave', hideVolumeContainer)
+// --- Playback Speed  ---
+speedBtn.addEventListener('click', changePlaybackSpeed)
+// --- View Modes ---
 theaterBtn.addEventListener('click', toggleTheaterMode)
 fullScreenBtn.addEventListener('click', toggleFullScreenMode)
-miniPlayerBtn.addEventListener('click', toggleminiPlayerMode)
+miniPlayerBtn.addEventListener('click', toggleMiniPlayerMode)
 
 video.addEventListener('touchstart', showControlsTouch, { passive: false })
-showControls.addEventListener('touchstart', hiddenControlsTouch, { passive: false })
-
-// ---------- Keydown ---------- //
-document.addEventListener('keydown', (e) => {
-  const tagName = document.activeElement.tagName.toLowerCase()
-  if (tagName === 'input') return
-  switch (e.key.toLocaleLowerCase()) {
-    case ' ':
-      if (tagName === 'button') return
-    case 'k':
-      togglePlay()
-      break
-    case 'f':
-      toggleFullScreenMode()
-      break
-    case 't':
-      toggleTheaterMode()
-      break
-    case 'i':
-      toggleminiPlayerMode()
-      break
-    case 'm':
-      toggleMute()
-      break
-    case 'arrowleft':
-    case 'j':
-      skip(-5)
-      break
-    case 'arrowright':
-    case 'l':
-      skip(5)
-      break
-  }
+showControls.addEventListener('touchstart', hiddenControlsTouch, {
+  passive: false
 })
+// --- Keydown ---
+document.addEventListener('keydown', handleKeyDown)
