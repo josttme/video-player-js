@@ -272,19 +272,19 @@ attributeTitle.forEach((elem) => {
     containerTitle.classList.add('container-title')
     // Full Screen and Exit Full Screen Attribute
     if (document.fullscreenElement == null && elem.classList.contains('full-screen-btn')) {
+      containerTitle.classList.add('fullscreen')
       fullScreenBtn.setAttribute('title', 'Full screen(f)')
-      containerTitle.style.transform = `translateX(${-110}px)`
     } else if (elem.classList.contains('full-screen-btn')) {
       fullScreenBtn.setAttribute('title', 'Exit full screen(f)')
-      containerTitle.style.transform = `translateX(${-140}px)`
+      containerTitle.classList.add('fullscreen')
     }
     // Play and Pause Screen Attribute
     if (video.paused && elem.classList.contains('play-pause-btn')) {
       playPauseBtn.setAttribute('title', 'Play(k)')
-      containerTitle.style.transform = 'translateX(-30px)'
+      containerTitle.classList.add('play-pause')
     } else if (elem.classList.contains('play-pause-btn')) {
       playPauseBtn.setAttribute('title', 'Pause(k)')
-      containerTitle.style.transform = 'translateX(-30px)'
+      containerTitle.classList.add('play-pause')
     }
     containerTitle.textContent = elem.getAttribute('title')
 
