@@ -16,6 +16,7 @@ const volumeSlider = $('.volume-slider')
 const rangeValue = $('.range-value')
 const videoContainer = $('.video-container')
 const timelineContainer = $('.timeline-container')
+const timelineRabge = $('.range-timeline')
 const video = $('video')
 const showControls = $('.show-controls')
 const downloadBtn = $('.download')
@@ -82,10 +83,12 @@ function setCurrentTime(percent) {
 function playVideo() {
   if (!wasPaused) video.play()
 }
+
 function handleTimelineUpdate(e) {
   const rect = timelineContainer.getBoundingClientRect()
   const percent = Math.min(Math.max(0, e.x - rect.x), rect.width) / rect.width
   timelineContainer.style.setProperty('--preview-position', percent)
+  timelineRabge.textContent = formatDuration(percent * video.duration)
   if (isScrubbing) {
     e.preventDefault()
     timelineContainer.style.setProperty('--progress-position', percent)
@@ -101,6 +104,7 @@ const leadingZeroFormatter = new Intl.NumberFormat(undefined, {
 video.addEventListener('timeupdate', () => {
   totalTimeElem.textContent = formatDuration(video.duration)
   currentTimeElem.textContent = formatDuration(video.currentTime)
+
   const percent = video.currentTime / video.duration
   timelineContainer.style.setProperty('--progress-position', percent)
 })
@@ -266,32 +270,34 @@ video.addEventListener('progress', bufferedProgress)
  * Attribute Title
  ********************************/
 attributeTitle.forEach((elem) => {
+  const containerTitle = document.createElement('div')
   elem.addEventListener('mouseover', () => {
     removeClassVolume()
-    const containerTitle = document.createElement('div')
     containerTitle.classList.add('container-title')
     // Full Screen and Exit Full Screen Attribute
     if (document.fullscreenElement == null && elem.classList.contains('full-screen-btn')) {
-      containerTitle.classList.add('fullscreen')
-      fullScreenBtn.setAttribute('title', 'Full screen(f)')
+      addClassAndAttrubute(fullScreenBtn, 'fullscreen', 'Full screen(f)')
     } else if (elem.classList.contains('full-screen-btn')) {
-      fullScreenBtn.setAttribute('title', 'Exit full screen(f)')
-      containerTitle.classList.add('fullscreen')
+      addClassAndAttrubute(fullScreenBtn, 'fullscreen', 'Exit full screen(f)')
     }
     // Play and Pause Screen Attribute
     if (video.paused && elem.classList.contains('play-pause-btn')) {
-      playPauseBtn.setAttribute('title', 'Play(k)')
-      containerTitle.classList.add('play-pause')
+      addClassAndAttrubute(playPauseBtn, 'play-pause', 'Play(k)')
     } else if (elem.classList.contains('play-pause-btn')) {
-      playPauseBtn.setAttribute('title', 'Pause(k)')
-      containerTitle.classList.add('play-pause')
+      addClassAndAttrubute(playPauseBtn, 'play-pause', 'Pause(k)')
+    }
+    if (elem.classList.contains('theater-btn')) {
+      containerTitle.classList.add('theater')
     }
     containerTitle.textContent = elem.getAttribute('title')
 
     elem.removeAttribute('title')
     elem.appendChild(containerTitle)
   })
-
+  function addClassAndAttrubute(btn, addClass, attributeTitle) {
+    containerTitle.classList.add(addClass)
+    btn.setAttribute('title', attributeTitle)
+  }
   elem.addEventListener('mouseout', () => {
     const containerTitle = elem.querySelector('.container-title')
     if (containerTitle) {

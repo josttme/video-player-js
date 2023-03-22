@@ -204,10 +204,11 @@ svg {
   position: relative;
   width: 30px;
   height: 30px;
+  z-index: 20;
 }
 .volume-slider-container {
   left: 50%;
-  transform: translateY(-210px) translateX(-50%) rotate(-90deg);
+  transform: translateY(-205px) translateX(-50%) rotate(-90deg);
   position: absolute;
   display: none;
   background-color: #000019;
@@ -262,6 +263,7 @@ svg {
   height: 20%;
 }
 .timeline {
+  position: relative;
   background-color: rgba(250, 250, 250, 0.2);
   height: 2px;
   width: 100%;
@@ -271,14 +273,16 @@ svg {
 
 .timeline::before {
   content: '';
+  --scale: 0;
   position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  right: calc(100% - var(--preview-position) * 100%);
-  display: none;
-  border-top-left-radius: 8px;
-  border-bottom-left-radius: 8px;
+  transform: translateX(-50%) scale(var(--scale));
+  height: 200%;
+  top: -50%;
+  left: calc(var(--preview-position) * 100%);
+  background-color: rgba(250, 250, 250, 0.8);
+  transition: transform 150ms ease-in-out;
+  width: 3px;
+  z-index: 10;
 }
 .timeline::after {
   content: '';
@@ -291,6 +295,25 @@ svg {
   border-radius: 8px;
 }
 
+.timeline .range-timeline {
+  --scale: 0;
+  position: absolute;
+  width: 45px;
+  height: 45px;
+  background-color: rgba(0, 0, 0, 1);
+  color: #fff;
+  text-align: center;
+  border-radius: 4px;
+
+  font-weight: bold;
+  top: -60px;
+  left: calc(var(--preview-position) * 100%);
+  transform: translateX(-50%);
+  line-height: 45px;
+  z-index: 1;
+  opacity: 0;
+  font-size: 17px;
+}
 .timeline .thumb-indicator {
   --scale: 0;
   position: absolute;
@@ -298,11 +321,12 @@ svg {
   height: 200%;
   top: -50%;
   left: calc(var(--progress-position) * 100%);
-  background-color: var(--secondary);
+  background-color: rgba(250, 250, 250, 0.8);
   border-radius: 50%;
   transition: transform 150ms ease-in-out;
   aspect-ratio: 1/1;
   border-radius: 8px;
+  z-index: 10;
 }
 
 .video-container.scrubbing .timeline::before,
@@ -311,8 +335,13 @@ svg {
 }
 .video-container.scrubbing .thumb-indicator,
 .timeline-container:hover .thumb-indicator,
-.timeline-container:hover .buffered {
+.timeline-container:hover .buffered,
+.timeline-container:hover .timeline::before,
+.timeline-container:hover .timeline .range-timeline {
   --scale: 1;
+}
+.timeline-container:hover .timeline .range-timeline {
+  opacity: 0.7;
 }
 .timeline-container:hover .buffered {
   height: 100%;
@@ -346,6 +375,9 @@ svg {
   left: 0;
   right: auto;
   transform: none;
+}
+.container-title.theater {
+  transform: translateX(-60%);
 }
 .video-container.paused .show-controls,
 .video-container.controls .show-controls {
