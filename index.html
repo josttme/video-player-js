@@ -12,8 +12,8 @@
     <meta name="description" content="JosttMovi video player" />
     
     <title>JosttMovie</title>
-    <script type="module" crossorigin src="/video-player-js/assets/index-c829495c.js"></script>
-    <link rel="stylesheet" href="/video-player-js/assets/index-648a4648.css">
+    <script type="module" crossorigin src="/video-player-js/assets/index-829360ee.js"></script>
+    <link rel="stylesheet" href="/video-player-js/assets/index-ef9f0b2e.css">
   </head>
   <body>
     <div class="image-logo-container">
@@ -30,6 +30,7 @@
           <div class="timeline">
             <div class="thumb-indicator"></div>
             <div id="buffered-bar" class="buffered"></div>
+            <span class="range-timeline">100</span>
           </div>
         </div>
         <div class="controls">
@@ -167,7 +168,13 @@
           </svg>
         </button>
       </div>
+      <div class="duration-container-scrubbing">
+        <div class="current-time-scrubbing">0:00</div>
+        /
+        <div class="total-time-scrubbing">0:00</div>
+      </div>
     </div>
+
     
   </body>
 </html>
