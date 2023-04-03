@@ -152,6 +152,7 @@ svg {
   fill: #fff;
   cursor: pointer;
 }
+
 .play-btn {
   width: 50px;
   height: 50px;
@@ -160,9 +161,8 @@ svg {
 .play-btn svg {
   fill: var(--secondary);
 }
-.video-controls-container .controls button:hover {
-  opacity: 0.8;
-  transform: scale(1.2);
+.video-container.paused.scrubbing .play-btn {
+  opacity: 0;
 }
 
 .video-container.paused .pause-icon {
@@ -259,7 +259,7 @@ svg {
   border-radius: 8px;
   margin: 0 1rem;
 }
-.timeline-container:hover .timeline {
+.timeline-container.scrubbing .timeline {
   height: 20%;
 }
 .timeline {
@@ -293,6 +293,14 @@ svg {
   right: calc(100% - var(--progress-position) * 100%);
   background-color: var(--secondary);
   border-radius: 8px;
+}
+.video-container.scrubbing .thumb-indicator,
+.timeline-container.scrubbing .timeline::before {
+  --scale: 1;
+}
+
+.video-container.scrubbing .timeline::before {
+  display: block;
 }
 
 .timeline .range-timeline {
@@ -329,27 +337,10 @@ svg {
   z-index: 10;
 }
 
-.video-container.scrubbing .timeline::before,
-.timeline-container:hover .timeline::before {
+.video-container.scrubbing .timeline::before {
   display: block;
 }
-.video-container.scrubbing .thumb-indicator,
-.timeline-container:hover .thumb-indicator,
-.timeline-container:hover .buffered,
-.timeline-container:hover .timeline::before,
-.timeline-container:hover .timeline .range-timeline {
-  --scale: 1;
-}
-.timeline-container:hover .timeline .range-timeline {
-  opacity: 0.7;
-}
-.timeline-container:hover .buffered {
-  height: 100%;
-}
-.video-container.scrubbing .timeline::before,
-.timeline-container:hover .timeline::before {
-  display: block;
-}
+
 .container-title {
   display: inline-block;
   position: absolute;
@@ -399,6 +390,10 @@ svg {
 .show-controls {
   display: none;
 }
+
+.duration-container-scrubbing {
+  display: none;
+}
 @media (max-width: 1200px) {
   .theater-btn {
     display: none;
@@ -409,8 +404,64 @@ svg {
   .container-title {
     display: none;
   }
+  .duration-container-scrubbing {
+    display: flex;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 200;
+    place-content: center;
+    font-size: 1.5rem;
+    height: 60px;
+    align-items: center;
+    font-weight: bold;
+    color: #fff;
+    opacity: 0.6;
+    display: none;
+    gap: 0.5rem;
+    transition: opacity 100ms ease-in-out;
+  }
+  .video-container.scrubbing .duration-container-scrubbing {
+    display: flex;
+  }
+  .video-container.scrubbing button,
+  .video-container.scrubbing .duration-container {
+    opacity: 0;
+  }
+  .video-container.scrubbing .timeline {
+    height: 50%;
+  }
+  .video-container.scrubbing .buffered {
+    height: 100%;
+  }
 }
 @media (min-width: 1200px) {
+  .video-controls-container .controls button:hover {
+    opacity: 0.8;
+    transform: scale(1.2);
+  }
+  .video-container.scrubbing .thumb-indicator,
+  .timeline-container:hover .thumb-indicator,
+  .timeline-container:hover .buffered,
+  .timeline-container:hover .timeline::before,
+  .timeline-container.scrubbing .timeline::before,
+  .timeline-container:hover .timeline .range-timeline {
+    --scale: 1;
+  }
+  .timeline-container:hover .timeline .range-timeline {
+    opacity: 0.7;
+  }
+  .timeline-container:hover .buffered {
+    height: 100%;
+  }
+  .video-container.scrubbing .timeline::before,
+  .timeline-container:hover .timeline::before {
+    display: block;
+  }
+  .timeline-container:hover .timeline {
+    height: 20%;
+  }
   .video-container.paused .show-controls,
   .video-container .show-controls {
     display: none;
@@ -429,15 +480,4 @@ svg {
   .image-logo-container {
     margin-bottom: 0;
   }
-}
-.card {
-  border: 1px solid #ccc;
-  padding: 10px;
-  margin: 10px;
-  color: #333;
-}
-
-pre {
-  background-color: #f5f5f5;
-  padding: 10px;
 }

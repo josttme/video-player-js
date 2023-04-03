@@ -8,6 +8,8 @@ const miniPlayerBtn = $('.mini-player-btn')
 const muteBtn = $('.mute-btn')
 const currentTimeElem = $('.current-time')
 const totalTimeElem = $('.total-time')
+const totalTimeScrubbing = $('.total-time-scrubbing')
+const currentTimeScrubbing = $('.current-time-scrubbing')
 const speedBtn = $('.speed-btn')
 const bufferedBar = $('#buffered-bar')
 const volumeContainer = $('.volume-container')
@@ -22,7 +24,7 @@ const showControls = $('.show-controls')
 const downloadBtn = $('.download')
 const attributeTitle = document.querySelectorAll('[title]')
 
-const isMinWidth1200 = window.matchMedia('(min-width: 1200px)')
+const isMinWidth1200 = window.innerWidth > 1200
 
 let timeoutControls, wasPaused
 let isHovering = false
@@ -49,12 +51,36 @@ function changePlaybackSpeed() {
 /********************************
  * TimeLine
  ********************************/
-
+let percent
 function toggleScrubbing(e) {
-  const percent = calculatePercent(e)
-  isScrubbing = (e.buttons & 1) === 1
+  if (isMinWidth1200) {
+    isScrubbing = (e.buttons & 1) === 1
+    percent = calculatePercent(e)
+    setCurrentTime(percent)
+    isScrubbing ? pauseVideo() : playVideo()
+  } else if (e.type === 'touchstart') {
+    wasPaused = video.paused
+    pauseVideo()
+    percent = calculatePercent(e)
+    isScrubbing = true
+  } else if (e.type === 'touchmove') {
+    percent = calculatePercent(e)
+  } else if (e.type === 'mouseup' || e.type === 'touchend') {
+    setCurrentTime(percent)
+    isScrubbing = false
+    playVideo()
+    isScrubbing ? pauseVideo() : playVideo()
+  }
   videoContainer.classList.toggle('scrubbing', isScrubbing)
 
+  handleTimelineUpdatee(e)
+}
+/* function toggleScrubbing(e) {
+  const percent = calculatePercent(e)
+  isScrubbing = (e.buttons & 1) === 1
+
+  videoContainer.classList.toggle('scrubbing', isScrubbing)
+  console.log(isScrubbing)
   if (isScrubbing) {
     e.preventDefault()
     pauseVideo()
@@ -63,12 +89,15 @@ function toggleScrubbing(e) {
     playVideo()
   }
 
-  handleTimelineUpdate(e)
+  handleTimelineUpdatee(e)
 }
-
+ */
 function calculatePercent(e) {
   const rect = timelineContainer.getBoundingClientRect()
-  return Math.min(Math.max(0, e.x - rect.x), rect.width) / rect.width
+  const position = e.touches && e.touches.length > 0 ? e.changedTouches[0].clientX : e.clientX
+  const relativePosition = position - rect.left
+  const percentage = Math.min(Math.max(relativePosition / rect.width, 0), 1)
+  return percentage
 }
 
 function pauseVideo() {
@@ -103,6 +132,7 @@ const leadingZeroFormatter = new Intl.NumberFormat(undefined, {
 
 video.addEventListener('timeupdate', () => {
   totalTimeElem.textContent = formatDuration(video.duration)
+  totalTimeScrubbing.textContent = formatDuration(video.duration)
   currentTimeElem.textContent = formatDuration(video.currentTime)
 
   const percent = video.currentTime / video.duration
@@ -353,10 +383,20 @@ video.addEventListener('play', removeClassPaused)
 video.addEventListener('pause', addClassPaused)
 isMinWidth1200 && video.addEventListener('click', togglePlay)
 // --- Time Line  ---
-timelineContainer.addEventListener('mousemove', handleTimelineUpdate)
-timelineContainer.addEventListener('mousedown', toggleScrubbing)
-document.addEventListener('mouseup', (e) => isScrubbing && toggleScrubbing(e))
-document.addEventListener('mousemove', (e) => isScrubbing && handleTimelineUpdate(e))
+/* function addEventListeners(element, eventMouse, eventTouch, handler) {
+  element.addEventListener(eventMouse, handler)
+  element.addEventListener(eventTouch, handler)
+}
+
+addEventListeners(timelineContainer, 'mousemove', 'touchmove', handleTimelineUpdate)
+addEventListeners(timelineContainer, 'mousedown', 'touchstart', toggleScrubbing)
+addEventListeners(document, 'mouseup', 'touchend', (e) => isScrubbing && toggleScrubbing(e))
+addEventListeners(
+  document,
+  'mousemove',
+  'touchmove',
+  (e) => isScrubbing && handleTimelineUpdate(e)
+) */
 // --- Volume  ---
 muteBtn.addEventListener('mouseover', showVolumeContainer)
 muteBtn.addEventListener('mouseleave', hideVolumeContainer)
@@ -375,3 +415,41 @@ showControls.addEventListener('touchstart', hiddenControlsTouch, {
 })
 // --- Keydown ---
 document.addEventListener('keydown', handleKeyDown)
+
+function handleTimelineUpdatee(event) {
+  event.preventDefault()
+  if (!('touches' in event) && !('clientX' in event)) return
+
+  const rect = timelineContainer.getBoundingClientRect()
+  const position =
+    event.touches && event.touches.length > 0 ? event.touches[0].clientX : event.clientX
+  const relativePosition = position - rect.left
+  const percentage = Math.min(Math.max(relativePosition / rect.width, 0), 1)
+  timelineRabge.textContent = formatDuration(percentage * video.duration)
+  if (isScrubbing) {
+    timelineContainer.style.setProperty('--progress-position', percentage)
+  }
+}
+function time(e) {
+  if (!('touches' in e) && !('clientX' in e)) return
+
+  const rect = timelineContainer.getBoundingClientRect()
+  const position = e.touches && e.touches.length > 0 ? e.touches[0].clientX : e.clientX
+  const relativePosition = position - rect.left
+  const percentage = Math.min(Math.max(relativePosition / rect.width, 0), 1)
+  currentTimeScrubbing.textContent = formatDuration(percentage * video.duration)
+  timelineContainer.style.setProperty('--preview-position', percentage)
+  timelineRabge.textContent = formatDuration(percentage * video.duration)
+}
+timelineContainer.addEventListener('mousedown', toggleScrubbing)
+timelineContainer.addEventListener('touchstart', toggleScrubbing)
+timelineContainer.addEventListener('touchmove', toggleScrubbing)
+timelineContainer.addEventListener('mousemove', time)
+timelineContainer.addEventListener('touchmove', time)
+
+document.addEventListener('mouseup', (e) => isScrubbing && toggleScrubbing(e))
+document.addEventListener('touchend', (e) => isScrubbing && toggleScrubbing(e))
+document.addEventListener('mousemove', (e) => isScrubbing && handleTimelineUpdatee(e))
+document.addEventListener('touchmove', (e) => isScrubbing && handleTimelineUpdatee(e), {
+  passive: false
+})
